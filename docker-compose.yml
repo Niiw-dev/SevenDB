@@ -1,0 +1,31 @@
+services:
+  artisan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /var/www/app
+    entrypoint: ["sh", "-c"]
+    command: ["tail -f /dev/null"]
+    env_file:
+      - path: ../Seven/.env.example
+        required: false
+      - path: ../Seven/.env
+        required: false
+    environment:
+      APP_ENV: local
+      DB_CONNECTION: pgsql
+      DB_HOST: seven-app-postgres
+      DB_PORT: 5432
+    networks:
+      - seven-database
+    volumes:
+      - ../Seven:/var/www/app:ro
+      - ./database:/var/www/app/database
+    tmpfs:
+      - /var/www/app/storage
+      - /var/www/app/bootstrap/cache
+
+networks:
+  seven-database:
+    external: true
+    name: ${SEVEN_DOCKER_NETWORK:-develop_default}
